@@ -12,6 +12,7 @@ Here are the requirements:
 ### Project Setup
 
 1. Install Node, Solidity and Hardhat
+
 2. Create a new folder called multi-sig-wallet and `cd` inside the folder. Initialize an npm project by running: `npm init`. Enter the details and it will create `package.json`.
 ```➜  MultiSigWallet git:(master) ✗ npm init
 This utility will walk you through creating a package.json file.
@@ -60,7 +61,9 @@ Is this OK? (yes) yes
 ```
 
 `package.json` will contain something like:
+
 3. To install Hardhat, use the following command: `npm install --save-dev hardhat`
+
 4. Created a new hardhat project by running `npx hardhat` in the project folder. If hardhat was not installed before, it will install `hardhat@2.12.6` or latest. Create an empty hardhat.config.js.
 ```
 ➜  MultiSigWallet git:(master) ✗ npx hardhat
