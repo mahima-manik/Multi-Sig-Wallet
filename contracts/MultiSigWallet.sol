@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 contract MultiSigWallet is AccessControl {
 
     uint public balance;
+    uint public minimumVotes;
     
     struct Proposal {
         uint amount;
@@ -27,9 +28,10 @@ contract MultiSigWallet is AccessControl {
         // Grant ADMIN_ROLE to the deploying address
         _setupRole(ADMIN_ROLE, msg.sender);
         balance += msg.value;
+        minimumVotes = 1;
     }
 
-    function propose(uint _amount, address _receiver) public payable {
+    function propose(uint _amount, address _receiver) external payable {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(_amount < balance, "Not enough balance in the wallet");
 
@@ -42,7 +44,7 @@ contract MultiSigWallet is AccessControl {
         proposal.hasExecuted = false;
     }
 
-    function vote(uint _index) public {
+    function approve(uint _index) external {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(_index < numProposals, "Proposal does not exist");
 
@@ -53,5 +55,18 @@ contract MultiSigWallet is AccessControl {
         
         proposal.votes += 1;
         proposal.hasVoted[msg.sender] = true;
+    }
+
+    function execute_proposal(uint _index) external payable {
+        require(_index < numProposals, "Proposal does not exist");
+
+        Proposal storage proposal = proposals[_index];
+
+        require(!proposal.hasExecuted, "Proposal has already been executed");
+        require(proposal.votes >= minimumVotes, "Not enough approvals");
+
+        proposal.hasExecuted = true;
+        (bool sent, bytes memory data) = proposal.receiver.call{value: proposal.amount}("");
+        require(sent, "Failed to send amount to receiver");
     }
 }
