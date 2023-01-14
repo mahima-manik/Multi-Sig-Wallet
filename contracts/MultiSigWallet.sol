@@ -14,6 +14,7 @@ contract MultiSigWallet is AccessControl {
         address receiver;
         uint votes;
         mapping (address => bool) hasVoted;
+        bool hasExecuted;
     }
 
     uint numProposals;
@@ -37,6 +38,20 @@ contract MultiSigWallet is AccessControl {
         proposal.amount = _amount;
         proposal.receiver = _receiver;
         proposal.votes = 1;
+        proposal.hasVoted[msg.sender] = true;
+        proposal.hasExecuted = false;
+    }
+
+    function vote(uint _index) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        require(_index < numProposals, "Proposal does not exist");
+
+        Proposal storage proposal = proposals[_index];
+
+        require(!proposal.hasExecuted, "Proposal has already been executed");
+        require(!proposal.hasVoted[msg.sender], "Caller has already voted");
+        
+        proposal.votes += 1;
         proposal.hasVoted[msg.sender] = true;
     }
 }
